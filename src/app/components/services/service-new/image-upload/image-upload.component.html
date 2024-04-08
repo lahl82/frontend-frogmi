@@ -1,0 +1,28 @@
+<form [formGroup]="imageForm">
+  <div class="form-group">
+    <div class="row">
+      <div class="col d-flex justify-content-center py-2">
+        <img
+          [src]="f['imageBase64'].value"
+          *ngIf="f['imageBase64'].value"
+          style="height: 10rem"
+          class="img-thumbnail"
+        />
+        <img
+          src="./assets/default-image.jpg"
+          *ngIf="!f['imageBase64'].value"
+          style="height: 10rem"
+          class="img-thumbnail"
+        />
+      </div>
+    </div>
+    <input
+      formControlName="image"
+      id="image"
+      type="file"
+      class="form-control"
+      accept="image/png, image/jpg, image/jpeg"
+      (change)="onImageChange($event)"
+    />
+  </div>
+</form>
