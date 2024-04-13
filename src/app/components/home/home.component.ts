@@ -68,11 +68,16 @@ export class HomeComponent implements OnInit {
 
   pagesRange() {
     let arraySize = 10
-    let firstValue = this.currentPage - this.currentPage%10 + 1
+    let firstValue = this.currentPage + 1 - ((this.currentPage % 10)?this.currentPage % 10:10)
 
     if (this.totalPages < 10) {
       arraySize = this.totalPages
     }
+
+    if ((firstValue + arraySize) > this.totalPages) {
+      arraySize = this.totalPages - firstValue + 1
+    }
+
 
     let res = new Array(arraySize).fill(firstValue).map((n, index) => {
       return n + index
@@ -82,8 +87,10 @@ export class HomeComponent implements OnInit {
   }
 
   changePage(pageNumber: number) {
-    this._storeContextService.setCurrentPage(pageNumber)
+    if (pageNumber > 0 && pageNumber <= this.totalPages) {
+      this._storeContextService.setCurrentPage(pageNumber)
 
-    this.fetchFeaturesList()
+      this.fetchFeaturesList()
+    }
   }
 }
