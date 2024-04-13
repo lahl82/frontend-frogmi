@@ -13,7 +13,7 @@ export class StoreContextService {
   }
 
   setCurrentPage(currentPage: number) {
-    localStorage.setItem('currentPage', JSON.stringify(currentPage))
+    localStorage.setItem('currentPage', JSON.stringify(Number(currentPage)))
   }
 
   constructor() { }

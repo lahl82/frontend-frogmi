@@ -50,6 +50,7 @@ export class HomeComponent implements OnInit {
       next: (featuresPage: IFeaturesPage) => {
         this.featuresList = featuresPage.data
         this.totalPages = Number(featuresPage.pagination?.total)
+        this.updateCurrentPage(Number(featuresPage.pagination?.current_page))
 
         if (featuresPage.data.length === 0) {
           this.emptyList = true
@@ -92,5 +93,35 @@ export class HomeComponent implements OnInit {
 
       this.fetchFeaturesList()
     }
+  }
+
+  updateCurrentPage(currentPage: number) {
+    this.currentPage = currentPage
+
+    this._storeContextService.setCurrentPage(currentPage)
+  }
+
+  refresh() {
+    this.currentPage = this._storeContextService.getCurrentPage()
+
+    this._apiFeaturesService.refreshFeaturesPage(this.currentPage).subscribe({
+      next: (featuresPage: IFeaturesPage) => {
+        this.featuresList = featuresPage.data
+        this.totalPages = Number(featuresPage.pagination?.total)
+        this.updateCurrentPage(Number(featuresPage.pagination?.current_page))
+
+        if (featuresPage.data.length === 0) {
+          this.emptyList = true
+        }
+
+        this.waiting = false
+      },
+      error: (error: any) => {
+        console.log(error)
+        this.errorMessage = 'Something went wrong. It is not to be possible to get data right now.'
+
+        this.waiting = false
+      }
+    })
   }
 }

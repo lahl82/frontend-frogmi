@@ -24,8 +24,8 @@ export class FeaturesService {
     return this._httpClient.get<IFeaturesPage>(`${this.fullEndpoint}.json?page=${currentPage}`)
   }
 
-  public refreshFeaturesPage(): Observable<IFeaturesPage> {
-    return this._httpClient.get<IFeaturesPage>(`${this.fullEndpoint}/refresh.json`)
+  public refreshFeaturesPage(currentPage: number): Observable<IFeaturesPage> {
+    return this._httpClient.get<IFeaturesPage>(`${this.fullEndpoint}/refresh.json?page=${currentPage}`)
   }
 
   public getCommentsByFeatureId(featureId: number): Observable<IComment[]> {
