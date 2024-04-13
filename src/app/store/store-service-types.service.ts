@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
-import { IServiceTypes } from '../models/iservice-types.model';
+import { IFeatureTypes } from '../models/iservice-types.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StoreServiceTypesService {
 
-  serviceTypes: IServiceTypes[] = []
+  serviceTypes: IFeatureTypes[] = []
 
   constructor() {
   }
 
-  getServiceTypes(): IServiceTypes[] {
+  getServiceTypes(): IFeatureTypes[] {
     return this.serviceTypes
   }
 
-  setServiceTypes(serviceTypes: IServiceTypes[]) {
+  setServiceTypes(serviceTypes: IFeatureTypes[]) {
     this.serviceTypes = serviceTypes
   }
 }

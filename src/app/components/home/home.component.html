@@ -4,34 +4,66 @@
       {{ message }}
     </div>
     <div class="row mx-auto">
-      @for (service of servicesList; track $index) {
-      <div class="col my-1">
-        <div
-          class="card list-item mx-auto h-100"
-          style="width: 16rem"
-          [routerLink]="['/services', service.id]"
-        >
-          <img [src]="[service?.url]" class="card-img-top mx-auto" alt="..." />
-          <div class="card-body">
-            <div class="d-flex align-items-center justify-content-center">
-              <b class="card-title my-0 text-center">{{ service.title }}</b>
-            </div>
-            <hr />
-            <small class="text-body-secondary"
-              >{{ service.description | slice : 0 : 40
-              }}{{ service.description.length > 40 ? "..." : "" }}</small
-            >
-          </div>
-          <div class="card-footer d-flex justify-content-end">
-            <b class="font-weight-bold text-nowrap"
-              >U$S {{ service.price | number }}</b
-            >
-          </div>
-        </div>
-      </div>
-      }
+      <h1>All Earthquakes in the last 30 Days</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Place</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <ng-container *ngIf="emptyList">
+          <caption class="text-center">
+            <i [ngStyle]="{ color: 'green' }">{{ emptyListMessage }}</i>
+          </caption>
+        </ng-container>
+        <ng-container *ngIf="!emptyList">
+          <tbody>
+            <tr *ngFor="let feature of featuresList">
+              <th scope="row">{{ feature.id }}</th>
+              <td>{{ feature.attributes?.place }}</td>
+              <td class="text-end">
+                <button
+                  class="btn btn-outline-primary"
+                  [routerLink]="['/features', feature.id]"
+                >
+                  Ver Comentarios
+                </button>
+              </td>
+              <td class="text-end">
+                <button
+                  class="btn btn-outline-primary"
+                  [routerLink]="['/comment-new']"
+                >
+                  Comentar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </ng-container>
+      </table>
     </div>
+    <nav class="" aria-label="...">
+      <ul class="pagination justify-content-center">
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1">Previous</a>
+        </li>
+        @for (page of pagesRange(); track $index) {
+        <li class="page-item">
+          <a class="page-link" href="#">{{ $index }}</a>
+        </li>
+        }
+        <li class="page-item">
+          <a class="page-link" href="#">Next</a>
+        </li>
+      </ul>
+    </nav>
   </ng-container>
+  <div *ngIf="waiting" class="mx-auto text-center">
+    <i [ngStyle]="{ color: 'green' }">{{ waitingMessage }}</i>
+  </div>
   <div *ngIf="waiting" class="mx-auto text-center">
     <i [ngStyle]="{ color: 'green' }">{{ waitingMessage }}</i>
   </div>

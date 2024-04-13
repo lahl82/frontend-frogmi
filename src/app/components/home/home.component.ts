@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
-import { IService } from '../../models/iservice.model';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Params, RouterModule } from '@angular/router';
-import { ServicesService } from '../../services/api/services.service';
+import { FeaturesService } from '../../services/api/features.service';
+import { IFeaturesPage } from '../../models/ifeatures-page.model';
+import { IFeature } from '../../models/ifeature.model';
+import { StoreContextService } from '../../store/store-context.service';
 
 @Component({
   selector: 'app-home',
@@ -11,37 +13,57 @@ import { ServicesService } from '../../services/api/services.service';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
-  servicesList: IService[] = []
+export class HomeComponent implements OnInit {
+
+  featuresList: IFeature[] = []
+  currentPage: number = 1
+  totalPages: number = 1
+
   message: string = ''
   errorMessage: string = ''
   waiting: boolean = true
-  waitingMessage: string = 'Descargando servicios. Espere un momento por favor.'
+  waitingMessage: string = 'Downloading Data. Wait for just a moment please.'
+  emptyList = false
+  emptyListMessage: string = 'Empty List'
 
-  private _apiServicesService = inject(ServicesService)
+  private _apiFeaturesService = inject(FeaturesService)
+  private _storeContextService = inject(StoreContextService)
+
   private _route = inject(ActivatedRoute)
 
   constructor() {
   }
 
   ngOnInit(): void {
-    this._apiServicesService.getAllServices().subscribe({
-        next: (data: IService[]) => {
-          this.servicesList = data
-          this.waiting = false
-        },
-        error: (error: any) => {
-          console.log(error)
-          this.errorMessage = 'Parece que hay un error y por ahora no podemos mostrar servicios.'
+    this.currentPage = this._storeContextService.getCurrentPage()
 
-          this.waiting = false
+    this._apiFeaturesService.getFeaturesPage(this.currentPage).subscribe({
+      next: (featuresPage: IFeaturesPage) => {
+        this.featuresList = featuresPage.data
+        this.totalPages = Number(featuresPage.pagination?.total)
+
+        if (this.featuresList.length === 0) {
+          this.emptyList = true
         }
-      })
+
+        this.waiting = false
+      },
+      error: (error: any) => {
+        console.log(error)
+        this.errorMessage = 'Something went wrong. It is not to be possible to get data right now.'
+
+        this.waiting = false
+      }
+    })
 
     this._route.params.subscribe({
       next: (params: Params) => {
         this.message = params['message']
       }
     })
+  }
+
+  pagesRange() {
+    return new Array(this.totalPages);
   }
 }

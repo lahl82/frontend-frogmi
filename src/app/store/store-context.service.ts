@@ -1,20 +1,19 @@
 import { Injectable } from '@angular/core';
-import { IUser } from '../models/iuser.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StoreContextService {
 
-  getUser(): IUser {
-    const ls: string = localStorage.getItem('user') || '{}'
-    const res: IUser = JSON.parse(ls)
+  getCurrentPage(): number {
+    const lsCurrentPage: string = localStorage.getItem('currentPage') || '1'
+    const currentPage: number = JSON.parse(lsCurrentPage)
 
-    return res
+    return currentPage
   }
 
-  setUser(user: IUser) {
-    localStorage.setItem('user', JSON.stringify(user))
+  setCurrentPage(currentPage: number) {
+    localStorage.setItem('currentPage', JSON.stringify(currentPage))
   }
 
   constructor() { }

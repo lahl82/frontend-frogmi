@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class BaseService {
 
-  public URL = '/services-api'
+  public URL = '/earthquake-monitor-api'
 
   constructor() { }
 }
