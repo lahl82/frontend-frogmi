@@ -52,7 +52,13 @@
         </li>
         @for (page of pagesRange(); track $index) {
         <li class="page-item">
-          <a class="page-link" href="#">{{ $index }}</a>
+          <a
+            class="page-link"
+            href="#"
+            [ngClass]="{ active: page == currentPage }"
+            (click)="changePage(page)"
+            >{{ page }}</a
+          >
         </li>
         }
         <li class="page-item">

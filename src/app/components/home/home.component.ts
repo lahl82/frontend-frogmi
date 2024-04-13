@@ -14,9 +14,8 @@ import { StoreContextService } from '../../store/store-context.service';
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
-
   featuresList: IFeature[] = []
-  currentPage: number = 1
+  currentPage = 1
   totalPages: number = 1
 
   message: string = ''
@@ -35,6 +34,16 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.fetchFeaturesList()
+
+    this._route.params.subscribe({
+      next: (params: Params) => {
+        this.message = params['message']
+      }
+    })
+  }
+
+  fetchFeaturesList() {
     this.currentPage = this._storeContextService.getCurrentPage()
 
     this._apiFeaturesService.getFeaturesPage(this.currentPage).subscribe({
@@ -42,7 +51,7 @@ export class HomeComponent implements OnInit {
         this.featuresList = featuresPage.data
         this.totalPages = Number(featuresPage.pagination?.total)
 
-        if (this.featuresList.length === 0) {
+        if (featuresPage.data.length === 0) {
           this.emptyList = true
         }
 
@@ -55,15 +64,26 @@ export class HomeComponent implements OnInit {
         this.waiting = false
       }
     })
-
-    this._route.params.subscribe({
-      next: (params: Params) => {
-        this.message = params['message']
-      }
-    })
   }
 
   pagesRange() {
-    return new Array(this.totalPages);
+    let arraySize = 10
+    let firstValue = this.currentPage - this.currentPage%10 + 1
+
+    if (this.totalPages < 10) {
+      arraySize = this.totalPages
+    }
+
+    let res = new Array(arraySize).fill(firstValue).map((n, index) => {
+      return n + index
+    })
+
+    return res
+  }
+
+  changePage(pageNumber: number) {
+    this._storeContextService.setCurrentPage(pageNumber)
+
+    this.fetchFeaturesList()
   }
 }
