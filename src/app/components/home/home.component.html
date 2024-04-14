@@ -30,7 +30,12 @@
                 <input
                   type="number"
                   class="form-control invalid"
-                  [ngClass]="{ 'is-invalid': hasErrors('price', 'required') }"
+                  [ngClass]="{
+                    'is-invalid':
+                      hasErrors('per_page', 'required') ||
+                      hasErrors('per_page', 'min') ||
+                      hasErrors('per_page', 'max')
+                  }"
                   id="per_page"
                   placeholder="Per Page"
                   formControlName="per_page"

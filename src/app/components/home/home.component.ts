@@ -41,7 +41,7 @@ export class HomeComponent implements OnInit {
   constructor() {
     this.searchForm = this.form.group({
       mag_type: [''],
-      per_page: [this.perPage, Validators.required],
+      per_page: [this.perPage, [Validators.required, Validators.min(1), Validators.max(1000)]],
     })
   }
 
@@ -60,6 +60,14 @@ export class HomeComponent implements OnInit {
     })
 
     this.searchForm.get('per_page')?.valueChanges.subscribe(value => {
+      if (value < 1) {
+        this.searchForm.get('per_page')?.patchValue(1)
+      }
+
+      if (value > 1000) {
+        this.searchForm.get('per_page')?.patchValue(1000)
+      }
+
       this.perPage = value
     })
   }
