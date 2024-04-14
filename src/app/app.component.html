@@ -1,42 +1,17 @@
-<div class="container-fluid w-100 p-0">
+<div class="container-fluid">
   <div class="row">
     <div class="col p-0">
-      <div class="d-flex justify-content-center ps-4 py-2" id="logo-bar">
+      <div class="d-flex justify-content-center py-2" id="logo-bar">
         <img src="./assets/logo-earthquake-tiny.png" alt="..." />
       </div>
     </div>
   </div>
 </div>
-<nav class="navbar navbar-expand" id="search-bar">
-  <div class="container-fluid text-center">
-    <div class="row w-100 justify-content-center mx-auto">
-      <div class="col text-end">
-        <div class="mx-auto d-sm-flex d-block flex-sm-nowrap">
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div
-            class="navbar-collapse collapse w-100 order-3 dual-collapse2"
-            id="navbarSupportedContent"
-          >
-            <ul class="navbar-nav w-100 justify-content-end">
-              <li class="nav-item">
-                <a class="nav-link text-primary text-nowrap" routerLink=""
-                  >Home</a
-                >
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<nav class="navbar navbar-expand p-0" id="menu-bar">
+  <ul class="navbar-nav w-100 justify-content-end">
+    <li class="nav-item">
+      <a class="nav-link text-primary text-nowrap" routerLink="**">Home</a>
+    </li>
+  </ul>
 </nav>
 <router-outlet></router-outlet>

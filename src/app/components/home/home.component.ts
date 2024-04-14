@@ -5,18 +5,23 @@ import { FeaturesService } from '../../services/api/features.service';
 import { IFeaturesPage } from '../../models/ifeatures-page.model';
 import { IFeature } from '../../models/ifeature.model';
 import { StoreContextService } from '../../store/store-context.service';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
+  searchForm: FormGroup
   featuresList: IFeature[] = []
   currentPage = 1
   totalPages: number = 1
+  magTypes: string[] = ['md', 'ml', 'ms', 'mw', 'me', 'mi', 'mb', 'mlg']
+  magTypeSelected: string = ''
+  perPage: number = 25
 
   message: string = ''
   errorMessage: string = ''
@@ -24,13 +29,20 @@ export class HomeComponent implements OnInit {
   waitingMessage: string = 'Downloading Data. Wait for just a moment please.'
   emptyList = false
   emptyListMessage: string = 'Empty List'
+  refreshMessage:  string = 'Backend update request sent'
+  displayMessage: boolean = false
 
   private _apiFeaturesService = inject(FeaturesService)
   private _storeContextService = inject(StoreContextService)
 
   private _route = inject(ActivatedRoute)
+  private form = inject(FormBuilder)
 
   constructor() {
+    this.searchForm = this.form.group({
+      mag_type: [''],
+      per_page: [this.perPage, Validators.required],
+    })
   }
 
   ngOnInit(): void {
@@ -41,12 +53,23 @@ export class HomeComponent implements OnInit {
         this.message = params['message']
       }
     })
+
+    this.searchForm.get('mag_type')?.valueChanges.subscribe(value => {
+      this.magTypeSelected = value
+      this.fetchFeaturesList()
+    })
+
+    this.searchForm.get('per_page')?.valueChanges.subscribe(value => {
+      this.perPage = value
+    })
   }
 
   fetchFeaturesList() {
+    this.waiting = true
+
     this.currentPage = this._storeContextService.getCurrentPage()
 
-    this._apiFeaturesService.getFeaturesPage(this.currentPage).subscribe({
+    this._apiFeaturesService.getFeaturesPage(this.currentPage, this.magTypeSelected, this.perPage).subscribe({
       next: (featuresPage: IFeaturesPage) => {
         this.featuresList = featuresPage.data
         this.totalPages = Number(featuresPage.pagination?.total)
@@ -54,13 +77,15 @@ export class HomeComponent implements OnInit {
 
         if (featuresPage.data.length === 0) {
           this.emptyList = true
+        } else {
+          this.emptyList = false
         }
 
         this.waiting = false
       },
       error: (error: any) => {
         console.log(error)
-        this.errorMessage = 'Something went wrong. It is not to be possible to get data right now.'
+        this.errorMessage = 'Something went wrong. It is not possible to get data right now.'
 
         this.waiting = false
       }
@@ -96,32 +121,43 @@ export class HomeComponent implements OnInit {
   }
 
   updateCurrentPage(currentPage: number) {
-    this.currentPage = currentPage
+    if (currentPage == 0) {
+      currentPage += 1
+    }
 
+    this.currentPage = currentPage
     this._storeContextService.setCurrentPage(currentPage)
   }
 
-  refresh() {
-    this.currentPage = this._storeContextService.getCurrentPage()
+  refreshBack() {
+    this.displayMessage = true
 
-    this._apiFeaturesService.refreshFeaturesPage(this.currentPage).subscribe({
-      next: (featuresPage: IFeaturesPage) => {
-        this.featuresList = featuresPage.data
-        this.totalPages = Number(featuresPage.pagination?.total)
-        this.updateCurrentPage(Number(featuresPage.pagination?.current_page))
-
-        if (featuresPage.data.length === 0) {
-          this.emptyList = true
-        }
-
+    this.waiting = true
+    this._apiFeaturesService.refreshFeaturesPage().subscribe({
+      next: (response: any) => {
+        console.log(`all ok with refresh: ${response}`)
         this.waiting = false
       },
       error: (error: any) => {
         console.log(error)
-        this.errorMessage = 'Something went wrong. It is not to be possible to get data right now.'
+        this.errorMessage = 'Something went wrong. It is not possible to get data right now.'
 
         this.waiting = false
       }
     })
+  }
+
+  refreshFront() {
+    this.updateCurrentPage(1)
+
+    this.fetchFeaturesList()
+  }
+
+  closeMessage() {
+    this.displayMessage = false
+  }
+
+  hasErrors(controlName: string, errorType: string) {
+    return this.searchForm.get(controlName)?.hasError(errorType) && this.searchForm.get(controlName)?.touched
   }
 }

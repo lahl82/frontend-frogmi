@@ -2,25 +2,23 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FeaturesService } from '../../../services/api/features.service';
-import { IComment } from '../../../models/icomment.model';
+import { IFeature } from '../../../models/ifeature.model';
 
 @Component({
-  selector: 'app-comments-list',
+  selector: 'app-feature-details',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './comments-list.component.html',
-  styleUrl: './comments-list.component.css'
+  templateUrl: './feature-details.component.html',
+  styleUrl: './feature-details.component.css'
 })
-export class CommentsListComponent  implements OnInit{
+export class FeatureDetailsComponent  implements OnInit{
 
   featureId?: number
-  commentsList?: IComment[]
+  feature: IFeature = {}
   message: string = ''
   errorMessage: string = ''
   waiting: boolean = true
   waitingMessage: string = 'Loading... Please wait'
-  emptyList = false
-  emptyListMessage: string = 'Empty Comments List'
 
   private _route = inject(ActivatedRoute)
   private _router = inject(Router)
@@ -35,13 +33,9 @@ export class CommentsListComponent  implements OnInit{
       next: (params: Params) => {
         this.featureId = Number(params['featureId'])
 
-        this._apiFeatures.getCommentsByFeatureId(this.featureId).subscribe({
-          next: (data: IComment[]) => {
-            this.commentsList = data
-
-            if (this.commentsList.length === 0) {
-              this.emptyList = true
-            }
+        this._apiFeatures.getFeature(this.featureId).subscribe({
+          next: (data: IFeature) => {
+            this.feature = data
 
             this.waiting = false
           },

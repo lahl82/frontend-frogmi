@@ -1,75 +1,35 @@
 <div class="container pt-2">
   <ng-container *ngIf="!waiting && !errorMessage">
-    <form [formGroup]="serviceNewForm" (ngSubmit)="send()" class="w-75 mx-auto">
-      <h4>Crear Nuevo Servicio</h4>
+    <form [formGroup]="commentNewForm" (ngSubmit)="send()" class="w-75 mx-auto">
+      <h4>New Comment</h4>
       <small class="text-body-secondary"
-        >Cada servicio que pueda ofrecer debe ser registrado por separado.
-        Coloque un nombre claro y preciso. En la descripción puede colocar las
-        caracteristicas más importantes de su servicio.
+        >Please add a comment about the earthquake event.
       </small>
       <hr />
 
       <div class="mb-3 form-floating">
-        <input
-          type="text"
-          class="form-control"
-          [ngClass]="{
-            'is-invalid':
-              hasErrors('title', 'required') || hasErrors('title', 'minlength')
-          }"
-          formControlName="title"
-          placeholder="Reparacion de Portatiles"
-        />
-        <label for="title" class="form-label">Titulo</label>
-        <div class="text-danger" *ngIf="hasErrors('title', 'required')">
-          Por favor ingrese el Título del Servicio.
-        </div>
-        <div class="text-danger" *ngIf="hasErrors('title', 'minlength')">
-          El Título no puede ser tan corto.
-        </div>
-      </div>
-
-      <div class="mb-3 form-floating">
         <textarea
           class="form-control"
-          placeholder="Describa su servicio aqui"
-          id="description"
-          style="height: 40rem"
+          placeholder="Add a comment here"
+          id="body"
+          style="height: 20rem"
           [ngClass]="{
             'is-invalid':
-              hasErrors('description', 'required') ||
-              hasErrors('description', 'minlength')
+              hasErrors('body', 'required') || hasErrors('body', 'minlength')
           }"
-          formControlName="description"
+          formControlName="body"
         ></textarea>
-        <label for="description" class="form-label">Descripción</label>
-        <div class="text-danger" *ngIf="hasErrors('description', 'required')">
-          Por favor ingrese una Descripción para el Servicio.
+        <label for="body" class="form-label">Comment</label>
+        <div class="text-danger" *ngIf="hasErrors('body', 'required')">
+          Please add a body to the Comment.
         </div>
-        <div class="text-danger" *ngIf="hasErrors('description', 'minlength')">
-          La descripción no puede ser tan corta.
-        </div>
-      </div>
-
-      <div class="mb-3 form-floating">
-        <input
-          type="number"
-          class="form-control invalid"
-          [ngClass]="{ 'is-invalid': hasErrors('price', 'required') }"
-          id="price"
-          placeholder="Precio en su moneda"
-          formControlName="price"
-        />
-        <label for="price" class="form-label">Precio</label>
-        <div class="text-danger" *ngIf="hasErrors('price', 'required')">
-          Debe ingresar un Precio para el Servicio.
+        <div class="text-danger" *ngIf="hasErrors('body', 'minlength')">
+          The comment body is too short.
         </div>
       </div>
-
-      <div class="text-end">
-        <button class="btn btn-primary" [disabled]="formInvalid()">
-          Salvar
-        </button>
+      <div class="d-flex justify-content-between">
+        <button class="btn btn-primary" (click)="back()">Back</button>
+        <button class="btn btn-primary" [disabled]="formInvalid()">Send</button>
       </div>
     </form>
   </ng-container>

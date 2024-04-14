@@ -4,56 +4,121 @@
       {{ message }}
     </div>
     <div class="row w-100 px-0">
-      <div class="col-10">
-        <h1>All Earthquakes in the last 30 Days</h1>
+      <div class="col-6">
+        <h1>All Earthquakes - last 30 Days</h1>
       </div>
-      <div class="col-2 my-auto px-0">
+      <div class="col-4 my-auto px-0">
+        <form [formGroup]="searchForm" class="w-75 mx-auto">
+          <div class="row">
+            <div class="col">
+              <div class="mb-3 form-floating">
+                <select
+                  class="form-select"
+                  formControlName="mag_type"
+                  id="magType"
+                >
+                  <option value="">Select</option>
+                  @for (type of magTypes; track $index) {
+                  <option value="{{ type }}">{{ type }}</option>
+                  }
+                </select>
+                <label for="magType" class="form-label">Mag_Type</label>
+              </div>
+            </div>
+            <div class="col">
+              <div class="mb-3 form-floating">
+                <input
+                  type="number"
+                  class="form-control invalid"
+                  [ngClass]="{ 'is-invalid': hasErrors('price', 'required') }"
+                  id="per_page"
+                  placeholder="Per Page"
+                  formControlName="per_page"
+                />
+                <label for="magType" class="form-label">Per Page</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col-1 my-auto px-0">
         <a
           class="nav-link text-primary text-nowrap text-end"
-          (click)="refresh()"
-          >Refresh</a
+          (click)="refreshFront()"
+          >Refresh front</a
+        >
+      </div>
+      <div class="col-1 my-auto px-0">
+        <a
+          class="nav-link text-primary text-nowrap text-end"
+          (click)="refreshBack()"
+          >Refresh back</a
         >
       </div>
     </div>
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Place</th>
-          <th scope="col"></th>
-          <th scope="col"></th>
-        </tr>
-      </thead>
-      <ng-container *ngIf="emptyList">
-        <caption class="text-center">
-          <i [ngStyle]="{ color: 'green' }">{{ emptyListMessage }}</i>
-        </caption>
-      </ng-container>
-      <ng-container *ngIf="!emptyList">
-        <tbody>
-          <tr *ngFor="let feature of featuresList">
-            <th scope="row">{{ feature.id }}</th>
-            <td>{{ feature.attributes?.place }}</td>
-            <td class="text-end">
-              <button
-                class="btn btn-outline-primary"
-                [routerLink]="['/features', feature.id]"
-              >
-                Ver Comentarios
-              </button>
-            </td>
-            <td class="text-end">
-              <button
-                class="btn btn-outline-primary"
-                [routerLink]="['/comment-new']"
-              >
-                Comentar
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </ng-container>
-    </table>
+    <div class="row w-100 px-0">
+      <div class="col-12">
+        <table class="table text-center">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">PLACE</th>
+              <th scope="col">MAGNITUDE</th>
+              <th scope="col">MAG_TYPE</th>
+              <th scope="col">TITLE</th>
+              <th scope="col">LONGITUDE</th>
+              <th scope="col">LATITUDE</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <ng-container *ngIf="emptyList">
+            <caption class="text-center">
+              <i [ngStyle]="{ color: 'green' }">{{ emptyListMessage }}</i>
+            </caption>
+          </ng-container>
+          <ng-container *ngIf="!emptyList">
+            <tbody>
+              <tr *ngFor="let feature of featuresList">
+                <th scope="row">{{ feature.attributes?.external_id }}</th>
+                <td>{{ feature.attributes?.place }}</td>
+                <td>{{ feature.attributes?.magnitude }}</td>
+                <td>{{ feature.attributes?.mag_type }}</td>
+                <td>{{ feature.attributes?.title }}</td>
+                <td>{{ feature.attributes?.coordinates?.longitude }}</td>
+                <td>{{ feature.attributes?.coordinates?.latitude }}</td>
+                <td class="text-end">
+                  <button
+                    class="btn btn-outline-primary"
+                    [routerLink]="['/feature', feature.id]"
+                  >
+                    Details
+                  </button>
+                </td>
+
+                <td class="text-end">
+                  <button
+                    class="btn btn-outline-primary"
+                    [routerLink]="['/comments', feature.id]"
+                  >
+                    Comments
+                  </button>
+                </td>
+                <td class="text-end">
+                  <button
+                    class="btn btn-outline-primary"
+                    [routerLink]="['/comment-new', feature.id]"
+                  >
+                    Add Comment
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </ng-container>
+        </table>
+      </div>
+    </div>
     <nav class="" aria-label="...">
       <ul class="pagination justify-content-center">
         <li class="page-item">
@@ -83,10 +148,31 @@
   <div *ngIf="waiting" class="mx-auto text-center">
     <i [ngStyle]="{ color: 'green' }">{{ waitingMessage }}</i>
   </div>
-  <div *ngIf="waiting" class="mx-auto text-center">
-    <i [ngStyle]="{ color: 'green' }">{{ waitingMessage }}</i>
-  </div>
   <div *ngIf="errorMessage" class="alert alert-warning" role="alert">
     {{ errorMessage }}
+  </div>
+  <div
+    class="toast-container position-absolute p-3 top-0 end-0"
+    id="toastPlacement"
+    *ngIf="displayMessage"
+  >
+    <div
+      class="toast align-items-center text-white bg-primary border-0 justify-content-center"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+      [style]="'display: flex'"
+    >
+      <div class="d-flex justify-content-between">
+        <div class="toast-body">{{ refreshMessage }}</div>
+        <button
+          type="button"
+          class="btn-close btn-close-white me-2 ms-auto m-auto"
+          data-bs-dismiss="toast"
+          aria-label="Close"
+          (click)="closeMessage()"
+        ></button>
+      </div>
+    </div>
   </div>
 </div>

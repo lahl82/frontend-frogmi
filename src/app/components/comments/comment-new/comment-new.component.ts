@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { IFeature } from '../../../models/ifeature.model';
-import { Router } from '@angular/router';
-import { CommentsService } from '../../../services/api/comments.service';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { FeaturesService } from '../../../services/api/features.service';
+import { IComment } from '../../../models/icomment.model';
 
 @Component({
   selector: 'app-comment-new',
@@ -12,90 +12,73 @@ import { CommentsService } from '../../../services/api/comments.service';
   templateUrl: './comment-new.component.html',
   styleUrl: './comment-new.component.css'
 })
-export class CommentNewComponent implements OnInit, OnDestroy {
+export class CommentNewComponent implements OnInit {
 
-  serviceNewForm: FormGroup
-  serviceImagesBase64Loaded: any[] = [null, null, null, null]
-  serviceImagesBase64Touched: boolean = false
-
-  waiting: boolean = true
-  waitingMessage: string = 'Cargando datos. Por favor espere un momento'
+  commentNewForm: FormGroup
+  featureId: number = 0
+  waiting: boolean = false
+  waitingMessage: string = 'Loading... Please wait'
   errorMessage: string = ''
 
-  private _apiComments = inject(CommentsService)
+  private _apiFeatures = inject(FeaturesService)
   private _router = inject(Router)
+  private _route = inject(ActivatedRoute)
 
   private form = inject(FormBuilder)
 
   constructor() {
-    this.serviceNewForm = this.form.group({
-      title: ['', [Validators.required, Validators.minLength(10)]],
-      description: ['', [Validators.required, Validators.minLength(10)]],
-      price: ['', Validators.required],
-      service_type_id: ['', Validators.required],
+    this.commentNewForm = this.form.group({
+      body: ['', [Validators.required, Validators.minLength(10)]]
     })
   }
 
   ngOnInit(): void {
-  }
-
-  ngOnDestroy(): void {
-    console.log('component destroyed')
+    this._route.params.subscribe({
+      next: (params: Params) => {
+        this.featureId = Number(params['featureId'])
+      }
+    })
   }
 
   formInvalid(): boolean {
-    return this.serviceNewForm.invalid || this.imagesEmpty()
-  }
-
-  imagesEmpty(): boolean {
-    return this.serviceImagesBase64Loaded.toString() === ',,,'
-  }
-
-  imagesInvalid(): boolean {
-    return this.imagesEmpty() && this.serviceImagesBase64Touched
+    return this.commentNewForm.invalid
   }
 
   send() {
     this.waiting = true
 
-    let formData: any = new FormData()
+    let formData: any = this.prepareDataToPost()
 
-    Object.keys(this.serviceNewForm.controls).forEach(formControlName => {
-      formData.append(formControlName, this.serviceNewForm.get(formControlName)?.value)
-    })
-
-    this.serviceImagesBase64Loaded.forEach((image, i) => {
-      if (this.serviceImagesBase64Loaded[i]) {
-        formData.append('data[]', this.serviceImagesBase64Loaded[i])
-      }
-    })
-
-    this._apiComments.postComment(formData)
+    this._apiFeatures.postComment(this.featureId, formData)
       .subscribe({
-        next: (data: IFeature) => {
-          console.log(`Returned:${data}`)
-          this._router.navigate(['services-list', { message: 'Servicio creado exitosamente' }])
-          this.waitingMessage = 'Salvando datos. Espere un momento'
+        next: (data: IComment) => {
+          this._router.navigate(['**', { message: 'Comment created' }])
+          this.waitingMessage = 'Saving comment. Please wait just a moment'
           this.waiting = false
         },
         error: (error: any) => {
-          console.log(`Error: ${error.message}`)
-          this._router.navigate(['services-list', { message: 'No se pudo crear el Servicio' }])
           console.log(error)
+          this._router.navigate(['**', { message: 'The Comment cannot be created' }])
           this.waiting = false
         }
       })
   }
 
-  hasErrors(controlName: string, errorType: string) {
-    return this.serviceNewForm.get(controlName)?.hasError(errorType) && this.serviceNewForm.get(controlName)?.touched
+  prepareDataToPost(): any {
+    let formData: any = new FormData()
+
+    Object.keys(this.commentNewForm.controls).forEach(formControlName => {
+      formData.append(formControlName, this.commentNewForm.get(formControlName)?.value)
+    })
+
+    return formData
   }
 
-  imageBase64LoadedListener($event: any, index: number) {
-    if (!this.serviceImagesBase64Touched) {
-      this.serviceImagesBase64Touched = true
-    }
+  hasErrors(controlName: string, errorType: string) {
+    return this.commentNewForm.get(controlName)?.hasError(errorType) && this.commentNewForm.get(controlName)?.touched
+  }
 
-    this.serviceImagesBase64Loaded[index] = $event
+  back(): void {
+    this._router.navigate(['**'])
   }
 }

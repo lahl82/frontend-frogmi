@@ -1,0 +1,56 @@
+<ng-container *ngIf="!waiting">
+  <div class="container pt-2">
+    <div class="card mx-auto" style="width: 24rem">
+      <h5 class="card-header text-center">{{ feature.attributes?.title }}</h5>
+      <div class="card-body">
+        <h5 class="card-title">Id</h5>
+        <p class="card-text text-end">
+          {{ feature.attributes?.external_id }}
+        </p>
+        <h5 class="card-title">Place</h5>
+        <p class="card-text text-end">
+          {{ feature.attributes?.place }}
+        </p>
+        <h5 class="card-title">Mag_Type</h5>
+        <p class="card-text text-end">
+          {{ feature.attributes?.mag_type }}
+        </p>
+        <h5 class="card-title">Magnitude</h5>
+        <p class="card-text text-end">
+          {{ feature.attributes?.magnitude }}
+        </p>
+        <h5 class="card-title">Time</h5>
+        <p class="card-text text-end">
+          {{
+            feature.attributes?.time
+              | date : "EEEE YYYY-MM-dd hh:mm:ss.SSS OOOO"
+          }}
+        </p>
+        <h5 class="card-title">Tsunami</h5>
+        <p class="card-text text-end">
+          {{ feature.attributes?.tsunami }}
+        </p>
+        <h5 class="card-title">Longitude</h5>
+        <p class="card-text text-end">
+          {{ feature.attributes?.coordinates?.longitude }}
+        </p>
+        <h5 class="card-title">Latitude</h5>
+        <p class="card-text text-end">
+          {{ feature.attributes?.coordinates?.latitude }}
+        </p>
+      </div>
+      <div class="card-footer">
+        <h5 class="card-title">External URL</h5>
+        <a class="link" tabindex="-1" [href]="feature.links?.external_url">{{
+          feature.links?.external_url
+        }}</a>
+      </div>
+      <button class="btn btn-outline-primary" [routerLink]="['**']">
+        Back
+      </button>
+    </div>
+  </div>
+</ng-container>
+<ng-container *ngIf="waiting">
+  <i [ngStyle]="{ color: 'green' }">Loading... Please wait</i>
+</ng-container>
